@@ -1,0 +1,24 @@
+extends layout
+
+block content
+    .question-box
+        .quiz-concept-tag= q.concept_type
+        h2= q.question_text
+        if q.code_snippet
+            pre.code-block= q.code_snippet
+
+        form(method="POST" action="/quiz/" + q.question_id + "/answer")
+            if q.answer_mode === 'mcq'
+                .options
+                    each opt in options
+                        label.option
+                            input(type="radio" name="answer" value=opt.option_label required)
+                            span.option-label= opt.option_label
+                            span.option-text= opt.option_text
+            else
+                .typed-answer
+                    label(for="typed_answer") Your Answer:
+                    input(type="text" id="typed_answer" name="typed_answer" required placeholder="Type your answer here...")
+
+            button.btn.btn-primary(type="submit") Submit Answer
+        p.back-link: a(href="/scan") ← Back to Scan

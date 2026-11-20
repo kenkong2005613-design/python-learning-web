@@ -1,0 +1,23 @@
+extends layout
+
+block content
+    .result-box
+        if isCorrect
+            .result-icon ✅
+            h2.text-correct Correct!
+            p You earned #{pointsAwarded} points.
+        else
+            .result-icon ❌
+            h2.text-wrong Not quite
+            p The correct answer was:
+                strong= correctOptionText || q.correct_answer
+
+        if typedAnswer
+            p.your-answer Your answer was: strong= typedAnswer
+
+        .explanation
+            h3 Explanation
+            p= q.explanation
+        .result-actions
+            a.btn.btn-primary(href="/scan") Scan Next QR Code
+            a.btn(href="/rooms/" + currentRoomCode) Back to Room

@@ -1,0 +1,18 @@
+extends layout
+
+block content
+    .auth-box
+        h1 Register
+        if error
+            .error-msg= error
+        form(method="POST" action="/register")
+            label(for="full_name") Full Name
+            input(type="text" id="full_name" name="full_name" required placeholder="Your name")
+            label(for="email") Email
+            input(type="email" id="email" name="email" required placeholder="you@example.com")
+            label(for="password") Password
+            input(type="password" id="password" name="password" required minlength="4")
+            button.btn.btn-primary(type="submit") Create Account
+        p.alt-link
+            | Already have an account? 
+            a(href="/login") Login here

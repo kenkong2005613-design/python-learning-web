@@ -1,0 +1,98 @@
+extends layout
+
+block content
+    .board-toolbar
+        h1 Game Board - Control Flow Challenge
+        button.btn.btn-primary(onclick="window.print()") 🖨️ Print A4 Board
+
+    .board-container
+        .game-board
+            - var cellNum = 1
+            - var questionSpaces = [2, 9, 14, 19, 27, 31, 38, 45, 51, 58, 66, 75]
+            - var totalRows = 10
+            - var totalCols = 8
+            - for (var row = totalRows - 1; row >= 0; row--)
+                - var rowCells = []
+                - if (row % 2 === 0) {
+                    - for (var col = 0; col < totalCols; col++) rowCells.push(col)
+                - } else {
+                    - for (var col = totalCols - 1; col >= 0; col--) rowCells.push(col)
+                - }
+                each col in rowCells
+                    - var qIdx = questionSpaces.indexOf(cellNum)
+                    .board-cell(class= qIdx !== -1 ? 'question-cell' : 'normal-cell', style='grid-column:' + (col + 1) + '; grid-row:' + (totalRows - row))
+                        if qIdx !== -1
+                            .q-content
+                                .q-label= "Q" + (qIdx + 1)
+                                img.qr-img(src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=" + (baseUrl + '/quiz/' + (qIdx + 1)) alt="Q" + (qIdx + 1))
+                        else
+                            .cell-num= cellNum
+                        - cellNum++
+
+    style.
+        .board-toolbar { text-align: center; margin-bottom: 10px; }
+        .board-container {
+            width: 190mm;
+            margin: 0 auto;
+        }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 2px;
+            background: #0a6976;
+            padding: 5px;
+        }
+        .board-cell {
+            background: #f0f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1;
+            overflow: hidden;
+        }
+        .cell-num {
+            color: #aaa;
+            font-size: 10px;
+        }
+        .question-cell {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 2px;
+        }
+        .q-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+        .q-label {
+            font-size: 9px;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 1px;
+        }
+        .qr-img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+        @media print {
+            .site-header, .site-footer, .board-toolbar {
+                display: none !important;
+            }
+            .board-container {
+                width: 190mm;
+                margin: 0;
+            }
+            .game-board {
+                gap: 1px;
+                padding: 2px;
+            }
+        }

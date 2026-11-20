@@ -1,0 +1,21 @@
+extends layout
+
+block content
+    h1 Leaderboard
+    .leaderboard-table
+        table
+            thead
+                tr
+                    th Rank
+                    th Player
+                    th Correct
+                    th Answered
+                    th Total Points
+            tbody
+                each player, i in leaderboard
+                    tr(class=(i === 0 ? 'rank-1' : ''))
+                        td= (i + 1)
+                        td= player.name
+                        td= player.correct
+                        td= player.answered
+                        td.points= player.totalScore

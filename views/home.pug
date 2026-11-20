@@ -1,0 +1,24 @@
+extends layout
+
+block content
+    .hero
+        h1 Learn Python Control Flow by Playing
+        p Practice if / elif / else, for loops, and while loops with fun quiz questions.
+        if currentUser
+            .hero-actions
+                a.btn.btn-primary(href="/quiz") Start Quiz
+                a.btn(href="/rooms") Join a Game Room
+        else
+            .hero-actions
+                a.btn.btn-primary(href="/register") Get Started
+                a.btn(href="/login") I Already Have an Account
+    .features
+        .feature-card
+            h3 📚 Practice Questions
+            p 12 questions covering if-elif-else, for loops, and while loops — both multiple choice and typed answers.
+        .feature-card
+            h3 🏆 Earn Points
+            p Get 10 points for every correct answer and climb the leaderboard.
+        .feature-card
+            h3 👥 Play with Friends
+            p Create or join a game room with a 6-character code and compete live.

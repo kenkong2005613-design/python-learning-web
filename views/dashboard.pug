@@ -1,0 +1,21 @@
+extends layout
+
+block content
+    h1 Welcome, #{user.full_name}
+    .stats-grid
+        .stat-card
+            .stat-value= answeredCount
+            .stat-label
+            | Questions Answered
+        .stat-card
+            .stat-value= correctCount
+            .stat-label
+            | Correct Answers
+        .stat-card
+            .stat-value= totalScore
+            .stat-label
+            | Total Points
+    .dashboard-actions
+        a.btn.btn-primary(href="/quiz") Start New Quiz
+        a.btn(href="/rooms") Join a Room
+        a.btn(href="/leaderboard") View Leaderboard

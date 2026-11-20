@@ -1,0 +1,16 @@
+extends layout
+
+block content
+    .auth-box
+        h1 Join a Game Room
+        p.hint Enter the room code to start answering questions.
+        if error
+            .error-msg= error
+        form(method="POST" action="/join-room")
+            input(type="hidden" name="next" value=next)
+            label(for="room_code") Room Code
+            input(type="text" id="room_code" name="room_code" maxlength="6" required placeholder="e.g. AB12CD" style="text-transform:uppercase; text-align:center; font-size:20px; letter-spacing:4px;")
+            button.btn.btn-primary(type="submit") Join & Continue
+        p.alt-link
+            | No room code? 
+            a(href="/rooms") Create or browse rooms

@@ -1,0 +1,108 @@
+extends layout
+
+block content
+    .room-header
+        h1 Room: #{room.room_code}
+        if isHost
+            .host-badge Host
+        p.status Game Status: #{room.status}
+
+    .room-info
+        p Share this room code with your friends so they can join the game.
+        .room-code-display= room.room_code
+
+    .game-instructions
+        h3 How to Play
+        ol
+            li Roll the dice and move your token on the physical game board.
+            li When you land on a QR code space, tap "Scan QR" below.
+            li Answer the Python Control Flow question correctly to earn points.
+            li The player with the highest score at the end wins!
+
+    #players-section.players-section
+        h3 Players & Scores
+        .players-list
+            each player in players
+                .player-row
+                    .player-info
+                        .player-name= player.name
+                        if player.user_id === currentUserId
+                            .you-badge (You)
+                        .player-meta
+                            span.token-colour Token: #{player.token_colour}
+                            span.turn-order Turn: #{player.turn_order}
+                            span.board-pos Position: #{player.board_position}
+                    .player-score #{player.total_score} pts
+
+    .dice-section
+        h3 🎲 Roll the Dice
+        .dice-display#dice-display 🎲
+        button.btn.btn-primary#roll-dice-btn Roll Dice!
+        p.dice-hint#dice-hint Click to roll and move your token on the board.
+
+    .room-actions
+        a.btn.btn-primary(href="/scan") 📷 Scan QR Code to Answer
+        a.btn(href="/leaderboard") Global Leaderboard
+        a.btn(href="/rooms") ← Change Room
+
+    script.
+        const diceDisplay = document.getElementById('dice-display');
+        const rollBtn = document.getElementById('roll-dice-btn');
+        const diceHint = document.getElementById('dice-hint');
+        const diceEmojis = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+
+        rollBtn.addEventListener('click', () => {
+            rollBtn.disabled = true;
+            diceHint.textContent = 'Rolling...';
+            let rolls = 0;
+            const interval = setInterval(() => {
+                diceDisplay.textContent = diceEmojis[Math.floor(Math.random() * 6)];
+                rolls++;
+                if (rolls >= 10) {
+                    clearInterval(interval);
+                    const result = Math.floor(Math.random() * 6) + 1;
+                    diceDisplay.textContent = diceEmojis[result - 1];
+                    diceHint.textContent = 'You rolled a ' + result + '! Move ' + result + ' spaces.';
+                    rollBtn.disabled = false;
+                }
+            }, 80);
+        });
+
+        // Auto-refresh players list every 3 seconds
+        function refreshPlayers() {
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function() {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(xhr.responseText, 'text/html');
+                var newSection = doc.getElementById('players-section');
+                var currentSection = document.getElementById('players-section');
+                if (newSection && currentSection) {
+                    currentSection.innerHTML = newSection.innerHTML;
+                }
+            };
+            xhr.open('GET', window.location.href, true);
+            xhr.send();
+        }
+        setInterval(refreshPlayers, 3000);
+
+    style.
+        .dice-section {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+        .dice-section h3 {
+            margin-bottom: 10px;
+        }
+        .dice-display {
+            font-size: 80px;
+            margin: 10px 0;
+            line-height: 1;
+        }
+        .dice-hint {
+            color: #666;
+            margin-top: 10px;
+        }

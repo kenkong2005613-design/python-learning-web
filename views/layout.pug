@@ -1,0 +1,31 @@
+doctype html
+html
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport" content="width=device-width, initial-scale=1.0")
+        title= title
+        link(rel="stylesheet", href="/style.css")
+    body
+        header.site-header
+            .header-inner
+                a.logo(href="/") Control Flow Game
+                nav.main-nav
+                    ul
+                        li: a(href="/") Home
+                        if currentUser
+                            li: a(href="/dashboard") Dashboard
+                            li: a(href="/scan") Scan
+                            if currentRoomCode
+                                li: a(href="/rooms/" + currentRoomCode) My Room
+                            else
+                                li: a(href="/rooms") Rooms
+                            li: a(href="/qrcodes") QR Codes
+                            li: a(href="/leaderboard") Leaderboard
+                            li: a(href="/logout") Logout (#{currentUser.full_name})
+                        else
+                            li: a(href="/login") Login
+                            li: a(href="/register") Register
+        main.container
+            block content
+        footer.site-footer
+            p CT117-3-2-FWDD — Kong Fu Ken (TP075924)

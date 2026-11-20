@@ -1,0 +1,18 @@
+extends layout
+
+block content
+    h1 Game Rooms
+    .rooms-grid
+        .room-card
+            h2 Create a Room
+            p Start a new game and invite friends with your room code.
+            form(method="POST" action="/rooms/create")
+                button.btn.btn-primary(type="submit") Create New Room
+        .room-card
+            h2 Join a Room
+            p Have a room code? Enter it below to join.
+            if error
+                .error-msg= error
+            form(method="POST" action="/rooms/join")
+                input(type="text" name="room_code" maxlength="6" required placeholder="e.g. AB12CD" style="text-transform:uppercase")
+                button.btn(type="submit") Join Room

@@ -1,0 +1,106 @@
+extends layout
+
+block content
+    h1 Scan QR Code
+    p Landed on a QR space? Scan it below, or enter the question number manually.
+
+    .scan-container
+        video#video(width="100%")
+        canvas#canvas(style="display:none")
+        .scan-status#scan-status Point your camera at a QR code...
+
+    .scan-actions
+        button.btn.btn-primary#start-btn Start Camera
+        button.btn#stop-btn(style="display:none") Stop
+
+    .manual-entry
+        h3 No camera? Enter question number manually
+        form(method="GET" action="/quiz/" id="manual-form")
+            input(type="number" name="q" min="1" max="12" placeholder="1 - 12" style="width:100px; text-align:center;")
+            button.btn(type="submit") Go to Question
+    script.
+        document.getElementById('manual-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const q = document.querySelector('input[name="q"]').value;
+            if (q) window.location.href = '/quiz/' + q;
+        });
+
+    script(src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js")
+    script.
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const statusEl = document.getElementById('scan-status');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        let scanning = false;
+        let stream = null;
+
+        startBtn.addEventListener('click', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = stream;
+                video.play();
+                scanning = true;
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+                statusEl.textContent = 'Scanning... point camera at a QR code.';
+                scanLoop();
+            } catch (err) {
+                statusEl.textContent = 'Cannot access camera: ' + err.message + ' (Use manual entry below)';
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+            scanning = false;
+            if (stream) stream.getTracks().forEach(t => t.stop());
+            video.srcObject = null;
+            startBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'none';
+            statusEl.textContent = 'Camera stopped.';
+        });
+
+        function scanLoop() {
+            if (!scanning) return;
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                try {
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    if (code && code.data) {
+                        const text = code.data;
+                        statusEl.textContent = 'Scanned: ' + text;
+                        // Extract question number from QR content
+                        // 1. First try to match "/quiz/数字" (from full URL)
+                        // 2. Then try "Q数字" (like Q1, Q2)
+                        // 3. Then try just a number
+                        let qid = null;
+                        const urlMatch = text.match(/\/quiz\/(\d+)/);
+                        if (urlMatch) {
+                            qid = urlMatch[1];
+                        } else {
+                            const qMatch = text.match(/[Qq](\d+)/);
+                            if (qMatch) {
+                                qid = qMatch[1];
+                            } else {
+                                const numMatch = text.match(/^\s*(\d+)\s*$/);
+                                if (numMatch) {
+                                    qid = numMatch[1];
+                                }
+                            }
+                        }
+                        if (qid) {
+                            window.location.href = '/quiz/' + qid;
+                            return;
+                        } else {
+                            statusEl.textContent = 'Could not find question number in: ' + text;
+                        }
+                    }
+                } catch (e) {
+                    // no QR found yet — keep scanning
+                }
+            }
+            requestAnimationFrame(scanLoop);
+        }

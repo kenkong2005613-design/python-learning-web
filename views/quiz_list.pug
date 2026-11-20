@@ -1,0 +1,12 @@
+extends layout
+
+block content
+    h1 Quiz Questions
+    p Pick a question to start.
+    .quiz-list
+        each q in questions
+            .quiz-item
+                .quiz-concept-tag= q.concept_type
+                h3: a(href="/quiz/#{q.question_id}") Question #{q.question_id}
+                p.quiz-preview= q.question_text
+                .quiz-points #{q.points} points
